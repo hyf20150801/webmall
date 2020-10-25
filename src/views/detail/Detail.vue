@@ -12,6 +12,7 @@
     </scroll>
     <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
     <back-top @click.native="backClick" v-show="isShowBackTop" />
+    <!-- <toast :message="message" :show="show"></toast> -->
 </div>
   <!-- <div>{{iid}}</div> -->
 </template>
@@ -29,10 +30,13 @@ import DetailBottomBar from "./childComps/DetailBottomBar";
 
 import Scroll from "components/common/scroll/Scroll";
 import GoodsList from 'components/content/goods/GoodsList';
+// import Toast from 'components/common/toast/Toast';
 
 import {getDatail,Goods,Shop,GoodsParam,getRecommend} from "network/detail";
 import {itemListenerMixin,backTopMixin} from "common/mixin";
 import {debounce} from "common/utils";
+
+import {mapActions} from 'vuex';
 
 export default {
     name:"Detail",
@@ -50,6 +54,8 @@ export default {
             themeTopYs:[],
             getThemeTopY:null,
             currentIndex:0,
+            // message:"",
+            // show:false,
         }
         
     },
@@ -63,7 +69,8 @@ export default {
         DetailCommentInfo,
         DetailBottomBar,
         Scroll,
-        GoodsList
+        GoodsList,
+        // Toast
     },
     created(){
         //1、保持传入的iid
@@ -112,6 +119,7 @@ export default {
         },200)
     },
     methods: {
+        ...mapActions(["addCart"]),
         imageLoad(){
             this.newRefresh();
             this.getThemeTopY();
@@ -153,10 +161,23 @@ export default {
             product.price = this.goods.realPrice;
             product.iid = this.iid;
 
-            //2、将商品添加到购物车里
+            //2、将商品添加到购物车里(1.Promise2.mapActions)
             //this.$store.carList.push(product);
             //this.$store.commit("addCart",product);
-            this.$store.dispatch("addCart",product)
+            //this.$store.dispatch("addCart",product)
+            //this.$store.dispatch("addCart",product).then(res =>console.log(res));
+            //this.addCart(product).then(res =>console.log(res));
+            this.addCart(product).then(res =>{
+            //    this.show = true;
+            //    this.message =res;
+            //    setTimeout(() =>{
+            //        this.show = false;
+            //        this.message = "";
+            //    },1500)
+            this.$toast.show(res,2000)
+            });
+            
+            //3.添加购物车成功
         }
     },
     mounted() {
